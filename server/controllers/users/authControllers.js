@@ -8,20 +8,20 @@ import User from '../../quaries/User.js'
 export const signup = async(req, res) => {
     const {first_name,last_name,username,email,password} = req.body;
     try{
-        if(isEmpty(first_name) || 
-           isEmpty(last_name) ||
-           isValidUsername(username) ||
-           isValidEmail(email) || 
-           isValidPassword(password)
+        if( isEmpty(first_name) || 
+            isEmpty(last_name) ||
+            !isValidUsername(username) || 
+            !isValidEmail(email) ||
+            !isValidPassword(password)
         ){
             return res.status(400).json({ success:false, message: 'Invalid Data' });
         }
 
         const id = uuidv4();
         const hashedPassword = await bcryptjs.hash(password, 10);
-        const insertId = User.signup(id,first_name,last_name,username,email,hashedPassword);
-        const user = User.findById(insertId);
-        const token = jwt.sign({ id: id }, JWT_SECRET, { expiresIn: '1hr' });
+        const insertedId = await User.signup(id,username,first_name,last_name,email,hashedPassword);
+        const user = await User.findById(insertedId);
+        const token = jwt.sign({ id: id }, process.env.JWT_SECRET, { expiresIn: '1hr' });
         return res.status(201).json({
             success: true,
             message: 'User created',

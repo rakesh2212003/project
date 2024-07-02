@@ -1,13 +1,14 @@
 import getConnection from '../config/mysql.js'
 
 const User = {
-    signup: async(id,first_name,last_name,username,email,password) => {
+    signup: async(id,username,first_name,last_name,email,password) => {
         const connection = await getConnection();
         try{
-            const [result] = await connection.execute("INSERT INTO users(id,first_name,last_name,username,email,password) VALUES(?,?,?,?,?,?)",[id,first_name,last_name,username,email,password]);
-            return result.insertId;
+            let [result] = await connection.execute("INSERT INTO users(id,username,first_name,last_name,email,password) VALUES(?,?,?,?,?,?)",[id,username,first_name,last_name,email,password]);
+            return id;
+
         }catch(error){
-            console.log(error.message);
+            throw new Error(`User.Signup(): ${error.message}`);
         }finally{
             if(connection){
                 connection.end();
@@ -25,7 +26,7 @@ const User = {
             const user = rows[0];
             return user;
         }catch(error){
-            console.log(error.message);
+            throw new Error(`User.findById(): ${error.message}`);
         }finally{
             if(connection){
                 connection.end();
